@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Cashier Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body:       #060e1e;
+            --bg-sidebar:    #07111f;
+            --bg-topbar:     #07111f;
+            --bg-card:       #0c1a2e;
+            --bg-card-hover: #0f2040;
+            --bg-panel:      #0a1526;
+            --border:        rgba(56,189,248,0.08);
+            --border-hover:  rgba(56,189,248,0.28);
+            --accent-cyan:   #38bdf8;
+            --accent-blue:   #3b82f6;
+            --accent-teal:   #2dd4bf;
+            --accent-rose:   #f43f5e;
+            --accent-indigo: #818cf8;
+            --text-primary:  #e8f0fe;
+            --text-muted:    #4e6180;
+            --text-dim:      #2a3a52;
+            --font-ui:       'Plus Jakarta Sans', sans-serif;
+            --font-head:     'Space Grotesk', sans-serif;
+            --ease-spring:   cubic-bezier(.22,.68,0,1.2);
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        html, body { height: 100%; }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            font-family: var(--font-ui);
+            font-size: 14px;
+            background-image:
+                radial-gradient(ellipse 900px 600px at -10% 0%, rgba(14,42,90,0.55) 0%, transparent 70%),
+                radial-gradient(ellipse 600px 500px at 110% 100%, rgba(10,30,70,0.40) 0%, transparent 70%);
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            width: 210px;
+            min-height: 100vh;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-heading {
+            padding: 26px 22px 18px;
+            font-family: var(--font-head);
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-nav { padding: 14px 12px; flex: 1; }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 9px 13px;
+            border-radius: 9px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-family: var(--font-ui);
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: background 0.18s, color 0.18s, transform 0.18s;
+            margin-bottom: 1px;
+        }
+        .menu-link i {
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .menu-link:hover {
+            background: rgba(56,189,248,0.07);
+            color: var(--text-primary);
+            transform: translateX(3px);
+        }
+        .menu-link:hover i { color: var(--accent-cyan); }
+        .menu-link.active {
+            background: rgba(59,130,246,0.14);
+            color: var(--accent-cyan);
+            border-left: 2px solid var(--accent-cyan);
+            padding-left: 11px;
+        }
+        .menu-link.active i { color: var(--accent-cyan); }
+
+        .nav-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 10px 4px;
+        }
+
+        /* ─── MAIN ─── */
+        .main { flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden; }
+
+        /* ─── TOPBAR ─── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 28px;
+            background: var(--bg-topbar);
+            border-bottom: 1px solid var(--border);
+        }
+        .topbar-title {
+            font-family: var(--font-head);
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.2px;
+        }
+        .topbar-actions { display: flex; gap: 8px; }
+        .topbar-btn {
+            padding: 7px 18px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-ui);
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.18s;
+        }
+        .btn-home {
+            background: #1a2f4e;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .btn-home:hover { background: #213858; border-color: var(--border-hover); }
+        .btn-logout {
+            background: rgba(244,63,94,0.12);
+            color: #fb7185;
+            border: 1px solid rgba(244,63,94,0.2);
+        }
+        .btn-logout:hover { background: rgba(244,63,94,0.22); }
+
+        /* ─── CONTENT ─── */
+        .content { padding: 26px 28px; flex:1; overflow-y:auto; }
+
+        /* SCROLLBAR */
+        .content::-webkit-scrollbar { width: 4px; }
+        .content::-webkit-scrollbar-thumb { background: var(--text-dim); border-radius: 4px; }
+
+        /* WELCOME */
+        .welcome {
+            margin-bottom: 24px;
+        }
+        .welcome h2 {
+            font-family: var(--font-head);
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .welcome h2 .name { color: var(--accent-cyan); }
+        .welcome p { font-size: 12.5px; color: var(--text-muted); margin-top: 4px; }
+
+        /* ─── STAT CARDS ─── */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px 18px;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+            transition:
+                transform 0.26s var(--ease-spring),
+                box-shadow 0.26s ease,
+                border-color 0.26s ease,
+                background 0.22s ease;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 60%; height: 60%;
+            background: radial-gradient(ellipse at top left, var(--c-glow, rgba(59,130,246,0.10)), transparent 70%);
+            pointer-events: none;
+        }
+        .stat-card:hover {
+            transform: translateY(-7px);
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+            box-shadow:
+                0 22px 55px rgba(0,0,0,0.55),
+                0 0 0 1px var(--border-hover),
+                0 6px 25px var(--c-shadow, rgba(59,130,246,0.18));
+        }
+
+        .stat-card.c-blue   { --c-glow: rgba(59,130,246,0.12); --c-shadow: rgba(59,130,246,0.20); }
+        .stat-card.c-cyan   { --c-glow: rgba(56,189,248,0.12); --c-shadow: rgba(56,189,248,0.20); }
+
+        .stat-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            margin-bottom: 14px;
+        }
+        .si-blue   { background: rgba(59,130,246,0.14);  color: #60a5fa; }
+        .si-cyan   { background: rgba(56,189,248,0.14);  color: var(--accent-cyan); }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-family: var(--font-head);
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+        .stat-value .prefix { font-size: 14px; font-weight: 500; color: var(--text-muted); }
+
+        /* ─── RECENT INVOICES TABLE ─── */
+        .table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition:
+                transform 0.26s var(--ease-spring),
+                box-shadow 0.26s ease,
+                border-color 0.26s ease;
+        }
+        .table-wrap:hover {
+            transform: translateY(-5px);
+            border-color: var(--border-hover);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px var(--border-hover);
+        }
+        .table-wrap .panel-head { padding: 18px 20px 0; }
+
+        .panel-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .panel-head .dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--accent-indigo);
+        }
+        .panel-head h3 {
+            font-family: var(--font-head);
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        table { width:100%; border-collapse:collapse; }
+        thead tr { background: var(--bg-panel); }
+        th {
+            padding: 11px 16px;
+            text-align: left;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13.5px;
+        }
+        tbody tr:last-child td { border-bottom:none; }
+        tbody tr:hover { background: rgba(56,189,248,0.03); }
+        .inv-no {
+            font-family: var(--font-head);
+            font-size: 13px;
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+        .amt { color: var(--accent-teal); font-weight: 600; }
+
+        .action-btn {
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            background: rgba(56, 189, 248, 0.08);
+            color: var(--accent-cyan);
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: var(--accent-cyan);
+            color: white;
+        }
+
+        /* Floating Navigation Widget */
+        .floating-nav {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 9999;
+        }
+        .nav-btn-float {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+        }
+        .nav-btn-float:hover {
+            background: #1e293b;
+            border-color: #38bdf8;
+            color: #38bdf8;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─── -->
+<div class="sidebar">
+    <div class="sidebar-heading">CASHIER</div>
+
+    <nav class="sidebar-nav">
+        <a class="menu-link active" href="/dashboard">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a class="menu-link" th:href="@{/invoice-page}">
+            <i class="fas fa-file-invoice"></i> Generate Invoice
+        </a>
+        <a class="menu-link" th:href="@{/invoice-history}">
+            <i class="fas fa-clock-rotate-left"></i> History
+        </a>
+
+        <div class="nav-divider"></div>
+
+        <a class="menu-link" th:href="@{/logout}">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </nav>
+</div>
+
+<!-- ─── MAIN ─── -->
+<div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="topbar-title">Dashboard</div>
+        <div class="topbar-actions">
+            <button class="topbar-btn btn-logout" onclick="location.href='/logout'">Logout</button>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <div class="welcome">
+            <h2>Welcome <span class="name" th:text="${userName}">Cashier</span> 👋</h2>
+            <p>Overview of invoices and sales generated by you.</p>
+        </div>
+
+        <!-- STAT CARDS -->
+        <div class="stat-grid">
+            <div class="stat-card c-blue">
+                <div class="stat-icon si-blue"><i class="fas fa-indian-rupee-sign"></i></div>
+                <div class="stat-label">Your Total Sales</div>
+                <div class="stat-value"><span class="prefix">₹ </span><span th:text="${totalSales}">0.00</span></div>
+            </div>
+            <div class="stat-card c-cyan">
+                <div class="stat-icon si-cyan"><i class="fas fa-file-invoice"></i></div>
+                <div class="stat-label">Invoices Raised</div>
+                <div class="stat-value" th:text="${totalInvoices}">0</div>
+            </div>
+        </div>
+
+        <!-- RECENT INVOICES -->
+        <div class="table-wrap">
+            <div class="panel-head">
+                <span class="dot"></span>
+                <h3>Your Recent Invoices</h3>
+            </div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Invoice No</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="inv : ${recentInvoices}">
+                    <td><span class="inv-no" th:text="${inv.invoiceNumber}"></span></td>
+                    <td th:text="${inv.customerName}"></td>
+                    <td style="color:var(--text-muted);" th:text="${inv.date}"></td>
+                    <td><span class="amt">₹ <span th:text="${inv.totalAmount}"></span></span></td>
+                    <td>
+                        <a class="action-btn" th:href="@{/invoice/view/{id}(id=${inv.id})}">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${recentInvoices == null or recentInvoices.isEmpty()}">
+                    <td colspan="5" style="text-align:center;color:var(--text-muted);padding:22px 0;">No invoices raised yet</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Floating Navigation Widget -->
+<div class="floating-nav">
+    <button class="nav-btn-float back" onclick="history.back()" title="Go Back">←</button>
+    <button class="nav-btn-float home" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
+</div>
+
+</body>
+</html>

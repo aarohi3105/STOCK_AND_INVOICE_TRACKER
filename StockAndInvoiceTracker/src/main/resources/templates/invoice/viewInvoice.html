@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Invoice - [[${invoice.invoiceNumber}]]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
+        body { background:#0b1220; color:white; }
+
+        .navbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:15px 25px;
+            background:#111827;
+            border-bottom:1px solid #222;
+        }
+        .nav-btn {
+            padding:8px 15px;
+            border:none;
+            border-radius:20px;
+            cursor:pointer;
+            margin-left:10px;
+            font-weight:600;
+            font-size:13px;
+        }
+        .home-btn { background:#00e0ff; color:#0b1220; }
+        .back-btn { background:#1f2937; color:white; }
+        .print-btn { background:#22c55e; color:white; }
+        .print-btn:hover { background:#16a34a; }
+
+        .container { padding:40px; display:flex; justify-content:center; }
+
+        /* Premium Invoice Document */
+        .invoice-card {
+            width: 800px;
+            background:#ffffff;
+            border:1px solid #e5e7eb;
+            border-radius:15px;
+            padding:40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            color: #1f2937;
+        }
+
+        .invoice-header {
+            display:flex;
+            justify-content:space-between;
+            border-bottom:2px solid #e5e7eb;
+            padding-bottom:25px;
+            margin-bottom:25px;
+        }
+        .brand-title { font-size:28px; font-weight:700; color:#1e3a8a; }
+        .brand-subtitle { font-size:13px; color:#4b5563; }
+
+        .invoice-title { text-align:right; }
+        .invoice-title h1 { font-size:32px; font-weight:600; color:#111827; letter-spacing:1px; }
+        .invoice-number { font-size:16px; color:#1e3a8a; font-weight:600; margin-top:5px; }
+
+        .invoice-details {
+            display:flex;
+            justify-content:space-between;
+            margin-bottom:30px;
+            font-size:14px;
+        }
+        .bill-to h3 { color:#4b5563; font-size:12px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+        .bill-to p { font-size:16px; font-weight:600; color:#111827; }
+
+        .meta-details { text-align:right; }
+        .meta-details p { margin-bottom:5px; color:#4b5563; }
+        .meta-details span { color:#111827; font-weight:600; }
+
+        table {
+            width:100%;
+            border-collapse:collapse;
+            margin-bottom:35px;
+        }
+        thead { background:#f3f4f6; }
+        th { padding:12px 15px; text-align:left; color:#374151; font-weight:600; font-size:12px; text-transform:uppercase; }
+        td { padding:12px 15px; border-bottom:1px solid #f3f4f6; font-size:14px; color:#4b5563; }
+        th.num, td.num { text-align:right; }
+
+        .invoice-footer {
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+        }
+        .payment-info h4 { color:#4b5563; font-size:12px; text-transform:uppercase; margin-bottom:6px; }
+        .status-badge {
+            display:inline-block;
+            padding:4px 12px;
+            border-radius:20px;
+            font-size:12px;
+            font-weight:600;
+        }
+        .status-paid { background:#ecfdf5; color:#047857; border: 1px solid #a7f3d0; }
+        .status-pending { background:#fffbeb; color:#b45309; border: 1px solid #fde68a; }
+
+        .totals { text-align:right; width:300px; }
+        .totals-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f3f4f6; }
+        .totals-row:last-child { border-bottom:none; padding-top:15px; }
+        .totals-label { color:#4b5563; }
+        .totals-val { font-weight:600; color:#111827; }
+        .grand-total { font-size:22px; color:#1e3a8a !important; }
+
+        .created-by { font-size:12px; color:#4b5563; margin-top:40px; text-align:center; border-top:1px solid #e5e7eb; padding-top:15px; }
+
+        /* Floating Navigation Widget */
+        .floating-nav {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 9999;
+        }
+        .nav-btn-float {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+        }
+        .nav-btn-float:hover {
+            background: #1e293b;
+            border-color: #38bdf8;
+            color: #38bdf8;
+            transform: translateY(-2px);
+        }
+
+        /* 🖨️ Print Stylesheet for Formal Business Printing */
+        @media print {
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .navbar, .floating-nav, .nav-btn {
+                display: none !important;
+            }
+            .container {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                display: block !important;
+            }
+            .invoice-card {
+                width: 100% !important;
+                max-width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white !important;
+                color: black !important;
+            }
+            .brand-title { color: #1e3a8a !important; }
+            .brand-subtitle, .bill-to h3, .meta-details p, .totals-label, .payment-info h4 { color: #4b5563 !important; }
+            .invoice-title h1 { color: black !important; }
+            .invoice-number { color: #1e3a8a !important; }
+            .meta-details span { color: black !important; }
+            thead { background: #f3f4f6 !important; }
+            th {
+                color: #374151 !important;
+                border-bottom: 2px solid #ddd !important;
+                background-color: #f3f4f6 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            td {
+                color: #111827 !important;
+                border-bottom: 1px solid #eee !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .totals-row { border-bottom-color: #eee !important; }
+            .grand-total { color: black !important; font-size: 20px !important; }
+            .status-badge {
+                border: 1px solid !important;
+                background: transparent !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .status-paid { border-color: #059669 !important; color: #059669 !important; }
+            .status-pending { border-color: #d97706 !important; color: #d97706 !important; }
+            .created-by {
+                border-top-color: #eee !important;
+                color: #6b7280 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <h2>🧾 Invoice Viewer</h2>
+    <div>
+        <button class="nav-btn back-btn" onclick="window.location.href='/invoice-history'">← Back</button>
+        <button class="nav-btn print-btn" onclick="window.print()">🖨️ Print Invoice</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="invoice-card">
+        <!-- HEADER -->
+        <div class="invoice-header">
+            <div>
+                <div class="brand-title">StockTracker</div>
+                <div class="brand-subtitle">Automated Stock & Billing System</div>
+            </div>
+            <div class="invoice-title">
+                <h1>INVOICE</h1>
+                <div class="invoice-number" th:text="${invoice.invoiceNumber}">INV-000</div>
+            </div>
+        </div>
+
+        <!-- DETAILS -->
+        <div class="invoice-details">
+            <div class="bill-to">
+                <h3>Billed To</h3>
+                <p th:text="${invoice.customerName}">Customer Name</p>
+            </div>
+            <div class="meta-details">
+                <p>Date: <span th:text="${invoice.date}">2026-05-27</span></p>
+                <p>Status:
+                    <span th:if="${invoice.paymentStatus != null and invoice.paymentStatus.name() == 'PAID'}" style="color:#6ee7b7; font-weight:700;">PAID</span>
+                    <span th:if="${invoice.paymentStatus != null and invoice.paymentStatus.name() == 'PENDING'}" style="color:#fcd34d; font-weight:700;">PENDING</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- ITEMS TABLE -->
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Item Description</th>
+                <th class="num">Unit Price (₹)</th>
+                <th class="num">Quantity</th>
+                <th class="num">Total (₹)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item, stat : ${invoice.items}">
+                <td th:text="${stat.index + 1}">1</td>
+                <td th:text="${item.product.name}">Product Name</td>
+                <td class="num" th:text="${item.price}">0.00</td>
+                <td class="num" th:text="${item.quantity}">0</td>
+                <td class="num" th:text="${item.total}">0.00</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- FOOTER SECTION -->
+        <div class="invoice-footer">
+            <div class="payment-info">
+                <h4>Payment Status</h4>
+                <div th:class="${invoice.paymentStatus != null and invoice.paymentStatus.name() == 'PAID'} ? 'status-badge status-paid' : 'status-badge status-pending'">
+                    <span th:text="${invoice.paymentStatus != null ? invoice.paymentStatus : 'PENDING'}">PENDING</span>
+                </div>
+            </div>
+            <div class="totals">
+                <div class="totals-row">
+                    <span class="totals-label">Subtotal</span>
+                    <span class="totals-val" th:text="${'₹ ' + invoice.totalAmount}">₹ 0.00</span>
+                </div>
+                <div class="totals-row">
+                    <span class="totals-label">GST / Tax (0%)</span>
+                    <span class="totals-val">₹ 0.00</span>
+                </div>
+                <div class="totals-row">
+                    <span class="totals-label grand-total">Grand Total</span>
+                    <span class="totals-val grand-total" th:text="${'₹ ' + invoice.totalAmount}">₹ 0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="created-by" th:if="${invoice.createdBy != null}">
+            Invoice generated by <strong th:text="${invoice.createdBy.firstname + ' ' + invoice.createdBy.lastname}">Staff</strong>
+        </div>
+    </div>
+
+</div>
+
+<!-- Floating Navigation Widget -->
+<div class="floating-nav">
+    <button class="nav-btn-float back" onclick="history.back()" title="Go Back">←</button>
+    <button class="nav-btn-float home" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
+</div>
+
+</body>
+</html>

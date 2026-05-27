@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Search Product</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
+        body { background:#0b1220; color:white; }
+
+        .navbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:15px 25px;
+            background:#111827;
+            border-bottom:1px solid #222;
+        }
+        .nav-btn {
+            padding:8px 15px;
+            border:none;
+            border-radius:20px;
+            cursor:pointer;
+            margin-left:10px;
+            font-family:'Poppins', sans-serif;
+        }
+        .home-btn { background:#00e0ff; color:#0b1220; font-weight:600; }
+        .back-btn { background:#1f2937; color:white; }
+        .logout-btn { background:#ff4d4d; color:white; }
+
+        .container { padding:30px; }
+
+        h2 { margin-bottom:25px; }
+
+        .search-bar {
+            display:flex;
+            gap:10px;
+            margin-bottom:30px;
+        }
+        .search-bar input {
+            flex:1;
+            padding:12px 18px;
+            border-radius:10px;
+            border:1px solid #374151;
+            background:#1f2937;
+            color:white;
+            font-size:15px;
+            font-family:'Poppins', sans-serif;
+            outline:none;
+        }
+        .search-bar input:focus { border-color:#00e0ff; }
+        .search-bar button {
+            padding:12px 24px;
+            border:none;
+            border-radius:10px;
+            background:#2563eb;
+            color:white;
+            font-size:15px;
+            font-family:'Poppins', sans-serif;
+            cursor:pointer;
+            transition:0.3s;
+        }
+        .search-bar button:hover { background:#1d4ed8; }
+
+        .result-info {
+            margin-bottom:15px;
+            color:#9ca3af;
+            font-size:14px;
+        }
+        .result-info span { color:#00e0ff; font-weight:600; }
+
+        table {
+            width:100%;
+            border-collapse:collapse;
+            background:#111827;
+            border-radius:12px;
+            overflow:hidden;
+        }
+        thead { background:#1f2937; }
+        th { padding:14px 16px; text-align:left; color:#9ca3af; font-weight:500; font-size:13px; text-transform:uppercase; letter-spacing:0.5px; }
+        td { padding:13px 16px; border-bottom:1px solid #1f2937; font-size:14px; }
+        tbody tr:hover { background:#1a2436; }
+        tbody tr:last-child td { border-bottom:none; }
+
+        .badge {
+            padding:4px 10px;
+            border-radius:20px;
+            font-size:12px;
+            font-weight:600;
+        }
+        .badge-ok { background:#064e3b; color:#6ee7b7; }
+        .badge-low { background:#78350f; color:#fcd34d; }
+        .badge-out { background:#450a0a; color:#fca5a5; }
+
+        /* Action Buttons */
+        .action-btns { display:flex; gap:8px; }
+        .btn-edit {
+            padding:6px 14px;
+            border:none;
+            border-radius:8px;
+            background:#1d4ed8;
+            color:white;
+            font-size:12px;
+            font-family:'Poppins', sans-serif;
+            cursor:pointer;
+            font-weight:600;
+            transition:0.2s;
+            text-decoration:none;
+            display:inline-flex;
+            align-items:center;
+            gap:4px;
+        }
+        .btn-edit:hover { background:#2563eb; transform:translateY(-1px); }
+
+
+        /* Delete Confirmation Modal */
+<!--        .modal-overlay {-->
+<!--            display:none;-->
+<!--            position:fixed;-->
+<!--            inset:0;-->
+<!--            background:rgba(0,0,0,0.7);-->
+<!--            z-index:1000;-->
+<!--            align-items:center;-->
+<!--            justify-content:center;-->
+<!--        }-->
+<!--        .modal-overlay.active { display:flex; }-->
+<!--        .modal {-->
+<!--            background:#1f2937;-->
+<!--            border:1px solid #374151;-->
+<!--            border-radius:16px;-->
+<!--            padding:32px;-->
+<!--            max-width:420px;-->
+<!--            width:90%;-->
+<!--            text-align:center;-->
+<!--        }-->
+<!--        .modal-icon { font-size:48px; margin-bottom:16px; }-->
+<!--        .modal h3 { font-size:20px; margin-bottom:10px; color:white; }-->
+<!--        .modal p { color:#9ca3af; font-size:14px; margin-bottom:24px; }-->
+<!--        .modal-btns { display:flex; gap:12px; justify-content:center; }-->
+<!--        .modal-cancel {-->
+<!--            padding:10px 24px; border-radius:10px; border:1px solid #374151;-->
+<!--            background:transparent; color:white; cursor:pointer; font-family:'Poppins',sans-serif;-->
+<!--            font-size:14px; transition:0.2s;-->
+<!--        }-->
+<!--        .modal-cancel:hover { background:#374151; }-->
+<!--        .modal-confirm {-->
+<!--            padding:10px 24px; border-radius:10px; border:none;-->
+<!--            background:#dc2626; color:white; cursor:pointer; font-family:'Poppins',sans-serif;-->
+<!--            font-size:14px; font-weight:600; transition:0.2s;-->
+<!--        }-->
+<!--        .modal-confirm:hover { background:#b91c1c; }-->
+
+        /* Flash messages */
+        .alert {
+            padding:12px 18px;
+            border-radius:10px;
+            margin-bottom:20px;
+            font-size:14px;
+            font-weight:500;
+        }
+        .alert-success { background:#064e3b; color:#6ee7b7; border:1px solid #065f46; }
+        .alert-error { background:#450a0a; color:#fca5a5; border:1px solid #7f1d1d; }
+
+        .empty-state {
+            text-align:center;
+            padding:60px 20px;
+            color:#6b7280;
+        }
+        .empty-state .icon { font-size:50px; margin-bottom:15px; }
+        .empty-state p { font-size:16px; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <h2>🔍 Search Product</h2>
+    <div>
+        <button class="nav-btn back-btn" onclick="window.location.href='/manage-inventory'">← Back</button>
+        <button class="nav-btn logout-btn" onclick="window.location.href='/logout'">Logout</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <h2>Search Product</h2>
+
+    <!-- Flash Messages -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <form action="/inventory/search" method="get" class="search-bar">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="Enter product name..." autocomplete="off" />
+        <button type="submit">🔍 Search</button>
+    </form>
+
+    <div class="result-info" th:if="${keyword != null and !keyword.isBlank()}">
+        Showing results for: <span th:text="'&quot;' + ${keyword} + '&quot;'"></span>
+        &nbsp;—&nbsp; <span th:text="${products.size()}"></span> product(s) found
+    </div>
+
+    <div th:if="${products.isEmpty()}" class="empty-state">
+        <div class="icon">🔍</div>
+        <p>No products found<span th:if="${keyword != null and !keyword.isBlank()}"> for "<span th:text="${keyword}"></span>"</span>.</p>
+    </div>
+
+    <table th:if="${!products.isEmpty()}">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Product Name</th>
+            <th>Price (₹)</th>
+            <th>Quantity</th>
+            <th>Low Stock Threshold</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p, stat : ${products}">
+            <td th:text="${stat.index + 1}"></td>
+            <td th:text="${p.name}"></td>
+            <td th:text="${'₹ ' + p.price}"></td>
+            <td th:text="${p.quantity}"></td>
+            <td th:text="${p.lowStockThreshold}"></td>
+            <td>
+                <span th:if="${p.quantity == 0}" class="badge badge-out">Out of Stock</span>
+                <span th:if="${p.quantity > 0 and p.quantity <= p.lowStockThreshold}" class="badge badge-low">Low Stock</span>
+                <span th:if="${p.quantity > p.lowStockThreshold}" class="badge badge-ok">In Stock</span>
+            </td>
+            <td>
+                <div class="action-btns">
+                    <a th:href="@{/inventory/edit/{id}(id=${p.id})}" class="btn-edit"> Edit</a>
+<!--                    <button class="btn-delete"-->
+<!--                            th:attr="onclick='openDeleteModal(' + ${p.id} + ', \'' + ${p.name} + '\')'">-->
+<!--                         Delete-->
+<!--                    </button>-->
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<!-- Delete Confirmation Modal -->
+<!--<div class="modal-overlay" id="deleteModal">-->
+<!--    <div class="modal">-->
+<!--        <div class="modal-icon">⚠️</div>-->
+<!--        <h3>Delete Product?</h3>-->
+<!--        <p id="modalMsg">Are you sure you want to delete this product? This action cannot be undone.</p>-->
+<!--        <div class="modal-btns">-->
+<!--            <button class="modal-cancel" onclick="closeDeleteModal()">Cancel</button>-->
+<!--            <button class="modal-confirm" id="confirmDeleteBtn" onclick="confirmDelete()">Delete</button>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!-- Floating Navigation Widget -->
+<style>
+    .floating-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        gap: 8px;
+        z-index: 9999;
+    }
+    .nav-btn-float {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        background: #0f172a;
+        color: #e2e8f0;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        transition: all 0.2s ease;
+    }
+    .nav-btn-float:hover {
+        background: #1e293b;
+        border-color: #38bdf8;
+        color: #38bdf8;
+        transform: translateY(-2px);
+    }
+</style>
+<div class="floating-nav">
+    <button class="nav-btn-float back" onclick="history.back()" title="Go Back">←</button>
+    <button class="nav-btn-float home" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
+</div>
+
+<script>
+    let deleteProductId = null;
+
+    function openDeleteModal(productId, productName) {
+        deleteProductId = productId;
+        document.getElementById('modalMsg').textContent =
+            'Are you sure you want to delete "' + productName + '"? This action cannot be undone.';
+        document.getElementById('deleteModal').classList.add('active');
+    }
+
+    function closeDeleteModal() {
+        deleteProductId = null;
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+
+    function confirmDelete() {
+        if (deleteProductId) {
+            window.location.href = '/inventory/delete/' + deleteProductId;
+        }
+    }
+
+    // Close modal on overlay click
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>
+</body>
+</html>

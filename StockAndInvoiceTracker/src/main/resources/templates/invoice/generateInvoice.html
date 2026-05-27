@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Generate Invoice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #060e1e;
+            --bg-top:    #07111f;
+            --bg-card:   #0c1a2e;
+            --bg-input:  #111827;
+            --bg-row:    #1f2937;
+            --border:    rgba(56,189,248,0.08);
+            --border-f:  rgba(56,189,248,0.30);
+            --cyan:      #38bdf8;
+            --blue:      #3b82f6;
+            --teal:      #2dd4bf;
+            --green:     #10b981;
+            --amber:     #f59e0b;
+            --rose:      #f43f5e;
+            --txt:       #e8f0fe;
+            --txt-m:     #4e6180;
+            --txt-s:     #9ca3af;
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--txt);
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            height: 58px;
+            background: var(--bg-top);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            color: var(--txt);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .topbar-actions { display: flex; gap: 9px; }
+
+        .btn-home {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(56,189,248,0.07);
+            color: var(--txt);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+            text-decoration: none;
+        }
+        .btn-home:hover {
+            background: rgba(56,189,248,0.14);
+            border-color: var(--border-f);
+            color: var(--cyan);
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(244,63,94,0.22);
+            background: rgba(244,63,94,0.08);
+            color: #fb7185;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+        .btn-logout:hover {
+            background: rgba(244,63,94,0.18);
+            border-color: rgba(244,63,94,0.45);
+        }
+
+        /* ── ALERTS ── */
+        .alert {
+            margin: 14px 28px 0;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 500;
+        }
+        .alert-success { background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.25); color: #6ee7b7; }
+        .alert-error   { background: rgba(244,63,94,0.10);  border: 1px solid rgba(244,63,94,0.25);  color: #fda4af; }
+
+        /* ── GRID ── */
+        .page-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 20px;
+            padding: 20px 28px 28px;
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--txt);
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .panel-title .dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--cyan);
+            flex-shrink: 0;
+        }
+
+        /* ── FORM FIELDS ── */
+        .field { margin-bottom: 14px; }
+        .field label {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--txt-s);
+            margin-bottom: 6px;
+        }
+        .field input,
+        .field select {
+            width: 100%;
+            padding: 10px 13px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: var(--txt);
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.17s;
+        }
+        .field input:focus,
+        .field select:focus { border-color: var(--border-f); }
+        .field input[readonly] {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        /* ADD ITEM ROW */
+        .add-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--txt-s);
+            margin: 18px 0 10px;
+        }
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 0.6fr 0.8fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.25);
+            border-radius: 8px;
+            color: #6ee7b7;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.17s;
+            margin-bottom: 16px;
+        }
+        .btn-add:hover { background: rgba(16,185,129,0.20); border-color: rgba(16,185,129,0.45); }
+
+        /* ITEMS TABLE */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+        .items-table thead tr { background: var(--bg-top); }
+        .items-table th {
+            padding: 9px 11px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--txt-s);
+        }
+        .items-table td {
+            padding: 10px 11px;
+            border-bottom: 1px solid var(--border);
+            color: var(--txt-s);
+        }
+        .items-table td:first-child { color: var(--txt); font-weight: 500; }
+        .items-table tbody tr:hover { background: rgba(56,189,248,0.03); }
+        .items-table tbody tr:last-child td { border-bottom: none; }
+
+        .total-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0;
+            border-top: 1px solid var(--border);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--txt);
+        }
+        .total-bar .amt {
+            color: var(--teal);
+            font-size: 17px;
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 13px;
+            margin-top: 16px;
+            background: linear-gradient(135deg, var(--blue), #2563eb);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.2px;
+        }
+        .btn-generate:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            box-shadow: 0 6px 24px rgba(59,130,246,0.35);
+            transform: translateY(-1px);
+        }
+
+        /* ── PREVIEW ── */
+        .preview-wrap {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 30px;
+            min-height: 400px;
+            color: #1f2937;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .preview-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 360px;
+            color: #9ca3af;
+            gap: 10px;
+        }
+        .preview-empty .pe-icon { font-size: 38px; color: #d1d5db; }
+        .preview-empty p { font-size: 13px; color: #9ca3af; }
+
+        /* INVOICE PREVIEW DOCUMENT */
+        .inv-doc { font-size: 13px; color: #1f2937; font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif; }
+
+        .inv-doc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .inv-doc-header .inv-label {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #1e3a8a;
+        }
+        .inv-doc-header .brand {
+            text-align: right;
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+        }
+        .inv-doc-header .brand small {
+            display: block;
+            font-size: 11px;
+            font-weight: 400;
+            color: #4b5563;
+            margin-top: 2px;
+        }
+
+        .inv-meta-row {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 14px;
+        }
+        .inv-meta-item { font-size: 12px; }
+        .inv-meta-item .key { color: #4b5563; margin-bottom: 2px; }
+        .inv-meta-item .val {
+            font-size: 12px;
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .inv-bill-to {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            font-size: 12px;
+        }
+        .inv-bill-to .key { color: #4b5563; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+        .inv-bill-to .name { font-size: 14px; font-weight: 700; color: #111827; }
+
+        .inv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        .inv-table thead tr { background: #f3f4f6; }
+        .inv-table th {
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #374151;
+        }
+        .inv-table td { padding: 8px 10px; border-bottom: 1px solid #f3f4f6; color: #4b5563; }
+        .inv-table td:first-child { color: #111827; font-weight: 500; }
+        .inv-table tbody tr:last-child td { border-bottom: none; }
+
+        .inv-total-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-top: 2px solid #e5e7eb;
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+        }
+        .inv-total-row .inv-total-amt {
+            font-size: 16px;
+            color: #1e3a8a;
+        }
+
+        .inv-status-row {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 11px;
+            color: #4b5563;
+        }
+        .status-pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+            letter-spacing: 0.5px;
+        }
+
+        /* Floating Navigation Widget */
+        .floating-nav {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 9999;
+        }
+        .nav-btn-float {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+        }
+        .nav-btn-float:hover {
+            background: #1e293b;
+            border-color: #38bdf8;
+            color: #38bdf8;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+    <div class="topbar-title">
+        <span style="font-size:18px;">🧾</span> Generate Invoice
+    </div>
+    <div class="topbar-actions">
+        <button class="btn-logout" onclick="window.location.href='/logout'">Logout</button>
+    </div>
+</div>
+
+<!-- ALERTS -->
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+<div class="page-grid">
+
+    <!-- ── LEFT: FORM ── -->
+    <div class="panel">
+        <div class="panel-title">
+            <span class="dot"></span>
+            Invoice Details
+        </div>
+
+        <form th:action="@{/invoice}" method="post" id="invoiceForm">
+
+            <div class="field">
+                <label>Customer Name</label>
+                <input type="text" name="customerName" id="customerNameInput" placeholder="Enter customer name" required oninput="updatePreview()">
+            </div>
+
+            <div class="field">
+                <label>Invoice Number</label>
+                <input type="text" name="invoiceNumber" id="invoiceNumberInput" th:value="${invoiceNumber}" readonly>
+            </div>
+
+            <div class="field">
+                <label>Date</label>
+                <input type="date" name="date" id="invoiceDateInput" th:value="${todayDate}" readonly>
+            </div>
+
+            <!-- ADD ITEMS -->
+            <div class="add-section-title">Add Items</div>
+
+            <div class="item-row">
+                <div class="field" style="margin:0;">
+                    <label>Product</label>
+                    <select id="productSelect" onchange="onProductChange()">
+                        <option value="">Select Product</option>
+                        <option th:each="p : ${products}"
+                                th:value="${p.id}"
+                                th:data-price="${p.price}"
+                                th:data-name="${p.name}"
+                                th:data-stock="${p.quantity}"
+                                th:text="${p.name + ' (Stock: ' + p.quantity + ')'}">
+                        </option>
+                    </select>
+                </div>
+                <div class="field" style="margin:0;">
+                    <label>Qty</label>
+                    <input type="number" id="qty" placeholder="0" min="1">
+                </div>
+                <div class="field" style="margin:0;">
+                    <label>Price (₹)</label>
+                    <input type="text" id="price" placeholder="—" readonly>
+                </div>
+            </div>
+
+            <button type="button" class="btn-add" onclick="addItem()">
+                + Add Item
+            </button>
+
+            <!-- ITEMS TABLE -->
+            <table class="items-table" id="itemTable">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price (₹)</th>
+                    <th>Total (₹)</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="total-bar">
+                Grand Total: <span class="amt">₹ <span id="grandTotalDisplay">0.00</span></span>
+            </div>
+
+            <button type="submit" class="btn-generate">🖨️ Generate Invoice</button>
+
+        </form>
+    </div>
+
+    <!-- ── RIGHT: LIVE PREVIEW ── -->
+    <div class="panel">
+        <div class="panel-title">
+            <span class="dot" style="background:var(--teal);"></span>
+            Live Preview
+        </div>
+
+        <div class="preview-wrap">
+
+            <!-- EMPTY STATE -->
+            <div class="preview-empty" id="previewEmpty">
+                <div class="pe-icon">📋</div>
+                <p>Fill in the form to see a live preview</p>
+            </div>
+
+            <!-- INVOICE DOCUMENT -->
+            <div class="inv-doc" id="previewContent" style="display:none;">
+
+                <div class="inv-doc-header">
+                    <div class="inv-label">INVOICE</div>
+                    <div class="brand">
+                        StockTracker
+                        <small>Billing System</small>
+                    </div>
+                </div>
+
+                <div class="inv-meta-row">
+                    <div class="inv-meta-item">
+                        <div class="key">Invoice No.</div>
+                        <div class="val" id="pvInvNo">—</div>
+                    </div>
+                    <div class="inv-meta-item">
+                        <div class="key">Date</div>
+                        <div class="val" id="pvDate">—</div>
+                    </div>
+                </div>
+
+                <div class="inv-bill-to">
+                    <div class="key">Bill To</div>
+                    <div class="name" id="pvCustomer">—</div>
+                </div>
+
+                <table class="inv-table" id="pvTable">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody id="pvTableBody">
+                    <tr>
+                        <td colspan="5" style="text-align:center;color:var(--txt-m);padding:16px;">
+                            No items added yet
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="inv-total-row">
+                    <span style="color:var(--txt-s);">Total Amount:</span>
+                    <span class="inv-total-amt">₹ <span id="pvTotal">0.00</span></span>
+                </div>
+
+                <div class="inv-status-row">
+                    Payment Status: <span class="status-pill">PENDING</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Floating Navigation Widget -->
+<div class="floating-nav">
+    <button class="nav-btn-float back" onclick="history.back()" title="Go Back">←</button>
+    <button class="nav-btn-float home" onclick="window.location.href='/dashboard'" title="Home">🏠</button>
+</div>
+
+<script>
+    let items = [];
+    let grandTotal = 0;
+
+    function onProductChange() {
+        const sel = document.getElementById("productSelect");
+        const opt = sel.options[sel.selectedIndex];
+        const price = opt.getAttribute("data-price");
+        const stock = opt.getAttribute("data-stock");
+        const qtyInput = document.getElementById("qty");
+        document.getElementById("price").value = price || "";
+        qtyInput.max = stock || "";
+        qtyInput.placeholder = stock ? "Max: " + stock : "0";
+    }
+
+    function addItem() {
+        const sel      = document.getElementById("productSelect");
+        const qtyInput = document.getElementById("qty");
+        const priceInp = document.getElementById("price");
+        const productId   = sel.value;
+        const productName = sel.options[sel.selectedIndex].getAttribute("data-name") || sel.options[sel.selectedIndex].text;
+        const price       = parseFloat(priceInp.value);
+        const qty         = parseInt(qtyInput.value);
+        const maxStock    = parseInt(qtyInput.max);
+
+        if (!productId)       { alert("Please select a product"); return; }
+        if (!qty || qty <= 0) { alert("Enter a valid quantity"); return; }
+        if (qty > maxStock)   { alert("Only " + maxStock + " in stock!"); return; }
+
+        const itemTotal = price * qty;
+        grandTotal += itemTotal;
+        const idx = items.length;
+        items.push({ productId, productName, qty, price, itemTotal });
+
+        document.querySelector("#itemTable tbody").innerHTML +=
+            `<tr id="row-${idx}">
+                <td>${productName}</td>
+                <td>${qty}</td>
+                <td>₹ ${price.toFixed(2)}</td>
+                <td>₹ ${itemTotal.toFixed(2)}</td>
+                <td><button type="button" onclick="removeItem(${idx})"
+                    style="background:none;border:none;color:#f43f5e;cursor:pointer;font-size:15px;line-height:1;">✕</button></td>
+            </tr>`;
+
+        document.getElementById("grandTotalDisplay").innerText = grandTotal.toFixed(2);
+
+        const form = document.getElementById("invoiceForm");
+        const h1 = Object.assign(document.createElement("input"), { type:"hidden", name:"productIds",  value:productId, id:"pid-"+idx });
+        const h2 = Object.assign(document.createElement("input"), { type:"hidden", name:"quantities",  value:qty,       id:"pqty-"+idx });
+        form.appendChild(h1);
+        form.appendChild(h2);
+
+        qtyInput.value = ""; priceInp.value = ""; sel.selectedIndex = 0;
+        updatePreview();
+    }
+
+    function removeItem(idx) {
+        const item = items[idx];
+        if (!item) return;
+        grandTotal -= item.itemTotal;
+        items[idx] = null;
+        ["row-"+idx, "pid-"+idx, "pqty-"+idx].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        });
+        document.getElementById("grandTotalDisplay").innerText = grandTotal.toFixed(2);
+        updatePreview();
+    }
+
+    function updatePreview() {
+        const customer = document.getElementById("customerNameInput").value.trim();
+        const invNo    = document.getElementById("invoiceNumberInput").value;
+        const date     = document.getElementById("invoiceDateInput").value;
+        const active   = items.filter(Boolean);
+
+        if (!customer && active.length === 0) {
+            document.getElementById("previewEmpty").style.display  = "flex";
+            document.getElementById("previewContent").style.display = "none";
+            return;
+        }
+
+        document.getElementById("previewEmpty").style.display  = "none";
+        document.getElementById("previewContent").style.display = "block";
+
+        document.getElementById("pvCustomer").innerText = customer || "—";
+        document.getElementById("pvInvNo").innerText    = invNo    || "—";
+        document.getElementById("pvDate").innerText     = date     || "—";
+
+        const rows = active.length
+            ? active.map((it, i) =>
+                `<tr>
+                    <td>${i+1}</td>
+                    <td>${it.productName}</td>
+                    <td>${it.qty}</td>
+                    <td>₹ ${it.price.toFixed(2)}</td>
+                    <td>₹ ${it.itemTotal.toFixed(2)}</td>
+                </tr>`).join("")
+            : `<tr><td colspan="5" style="text-align:center;color:var(--txt-m);padding:14px;">No items added yet</td></tr>`;
+
+        document.getElementById("pvTableBody").innerHTML = rows;
+        document.getElementById("pvTotal").innerText     = grandTotal.toFixed(2);
+    }
+
+    document.addEventListener("DOMContentLoaded", updatePreview);
+</script>
+</body>
+</html>

@@ -1,8 +1,8 @@
-# 📦 Inventory & Invoice Management System
+# 📦 Stock And Invoice Tracker
 
 ## 📌 Project Overview
 
-The Inventory & Invoice Management System is a full-stack web application developed to simplify inventory tracking, billing, invoice generation, and sales management for businesses and shops.
+The Stock and Invoice Tracker is a full-stack web application developed to simplify inventory tracking, billing, invoice generation, and sales management for businesses and shops.
 
 The system provides an attractive admin dashboard where users can manage products, monitor stock levels, generate invoices, track sales analytics, and manage system users efficiently.
 

@@ -217,6 +217,7 @@ http://localhost:8080
 
 ## 🔹 Login Page
 - Secure login interface with role-based authentication.
+<img width="1906" height="937" alt="image" src="https://github.com/user-attachments/assets/55770330-b00e-4eca-a6fb-fad0a98f6c6d" />
 
 ---
 
@@ -225,11 +226,13 @@ http://localhost:8080
 - Monthly sales chart
 - Low stock overview
 - Inventory summary
+<img width="1917" height="963" alt="image" src="https://github.com/user-attachments/assets/419d3ad7-041c-4071-855c-87f4922e46ac" />
 
 ---
 
 ## 🔹 Manage Users
 - Add/Edit/Delete/Search users
+<img width="1919" height="912" alt="image" src="https://github.com/user-attachments/assets/b706c431-837b-461e-a3ef-6e0c4ecd3892" />
 
 ---
 
@@ -237,6 +240,19 @@ http://localhost:8080
 - Product cards
 - Low stock products
 - Inventory reports
+<img width="1919" height="908" alt="image" src="https://github.com/user-attachments/assets/f5ae3cba-72de-4872-9075-f9a14636f144" />
+<img width="799" height="600" alt="image" src="https://github.com/user-attachments/assets/502d1828-e26c-462c-8b12-dd3eab0c4637" />
+<img width="1917" height="906" alt="image" src="https://github.com/user-attachments/assets/c839a79e-58d5-45be-b63a-13f73701a499" />
+<img width="1919" height="902" alt="image" src="https://github.com/user-attachments/assets/1746b804-9079-446e-807f-e446cc0312c8" />
+<img width="1916" height="908" alt="image" src="https://github.com/user-attachments/assets/e78ba679-48fd-4dd2-bb25-5e99e76c48ba" />
+<img width="1919" height="901" alt="image" src="https://github.com/user-attachments/assets/a50d6f48-304a-41fe-8096-702ec07cb5d0" />
+<img width="1919" height="907" alt="image" src="https://github.com/user-attachments/assets/93210980-cb50-48ca-8542-163b7c766eaa" />
+
+
+
+
+
+
 
 ---
 
@@ -244,6 +260,9 @@ http://localhost:8080
 - Live invoice preview
 - Professional invoice UI
 - Print invoice functionality
+<img width="1912" height="850" alt="image" src="https://github.com/user-attachments/assets/5d835150-e895-45e0-838d-06caa295eb6e" />
+<img width="1913" height="731" alt="image" src="https://github.com/user-attachments/assets/6933b50a-47dd-4b16-8e6b-1f4b3f8a41ae" />
+
 
 ---
 
@@ -288,6 +307,7 @@ The project demonstrates:
 - Thymeleaf
 - MySQL
 - HTML/CSS/JavaScript
-- 
-- <img width="1906" height="937" alt="image" src="https://github.com/user-attachments/assets/05da3193-4111-4130-aa08-e75a4f3901d6" />
+  
+# Project Report
+[StockAndInvoiceTracker_Report MiniProject.pdf](https://github.com/user-attachments/files/28349539/StockAndInvoiceTracker_Report.MiniProject.pdf)
 

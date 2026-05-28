@@ -271,7 +271,7 @@ http://localhost:8080
 | Name | Role |
 |------|------|
 | Aarohi Jain |  Frontend Development |
-| Aarohi jain |  Backend Development |
+| Aashi jain |  Backend Development |
 
 ---
 

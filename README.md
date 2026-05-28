@@ -288,3 +288,6 @@ The project demonstrates:
 - Thymeleaf
 - MySQL
 - HTML/CSS/JavaScript
+- 
+- <img width="1906" height="937" alt="image" src="https://github.com/user-attachments/assets/05da3193-4111-4130-aa08-e75a4f3901d6" />
+
